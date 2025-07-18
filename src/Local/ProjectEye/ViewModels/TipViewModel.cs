@@ -97,7 +97,8 @@ namespace ProjectEye.ViewModels
 
         private void Theme_OnChangedTheme(string OldThemeName, string NewThemeName)
         {
-            CreateUI();
+            // CreateUI(); // Removing this line because CreateTipWindows will handle UI creation
+            main.CreateTipWindows(); // This line should forcely recreate TipWindow on every screen
         }
 
         private void TipViewModel_ChangedEvent()
