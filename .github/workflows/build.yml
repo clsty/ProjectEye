@@ -19,6 +19,12 @@ jobs:
             
     - name: Restore NuGet packages  
       run: nuget restore src/Local/ProjectEye/ProjectEye.Local.sln
+
+    - name: Install .NET Framework 4.5 Developer Pack
+      run: |
+        Invoke-WebRequest -Uri "https://download.microsoft.com/download/1/5/A/15A2DE9B-2F17-4F8B-AE9A-8F0B0F687A77/NDP45-DevPack-KB2872776-ENU.exe" -OutFile "dotnet45.exe"
+        Start-Process -FilePath .\dotnet45.exe -ArgumentList "/q" -Wait
+      shell: pwsh
             
     - name: Build ProjectEye  
       run: msbuild src/Local/ProjectEye/ProjectEye.csproj /p:Configuration=Release /p:Platform="AnyCPU"  
