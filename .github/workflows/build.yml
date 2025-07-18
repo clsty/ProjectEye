@@ -6,42 +6,52 @@ on:
 jobs:  
   build:  
     runs-on: windows-latest  
-      
-    steps:  
-    - name: Checkout code  
-      uses: actions/checkout@v4  
-        
-    - name: Setup MSBuild  
-      uses: microsoft/setup-msbuild@v1.3  
-        
-    - name: Setup NuGet  
-      uses: NuGet/setup-nuget@v1  
-            
-    - name: Restore NuGet packages  
-      run: nuget restore src/Local/ProjectEye/ProjectEye.Local.sln
+    env:
+      buildCfg: Release
+      net45SdkUrl: 'https://www.nuget.org/api/v2/package/Microsoft.NETFramework.ReferenceAssemblies.net45/1.0.3'
+      sdkSystemPath: 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework'
 
-    - name: Install .NET Framework 4.5 Developer Pack
-      run: |
-        Invoke-WebRequest -Uri "https://download.microsoft.com/download/1/5/A/15A2DE9B-2F17-4F8B-AE9A-8F0B0F687A77/NDP45-DevPack-KB2872776-ENU.exe" -OutFile "dotnet45.exe"
-        Start-Process -FilePath .\dotnet45.exe -ArgumentList "/q" -Wait
-      shell: pwsh
-            
-    - name: Build ProjectEye  
-      run: msbuild src/Local/ProjectEye/ProjectEye.csproj /p:Configuration=Release /p:Platform="AnyCPU"  
-        
-    - name: Build Project1.UI  
-      run: msbuild src/Local/Project1.UI/Project1.UI.csproj /p:Configuration=Release /p:Platform="AnyCPU"  
-        
-    - name: Build ProjectEyeBug  
-      run: msbuild src/Local/ProjectEyeBug/ProjectEyeBug.csproj /p:Configuration=Release /p:Platform="AnyCPU"  
-        
-    - name: Build ProjectEyeUp  
-      run: msbuild src/Local/ProjectEyeUp/ProjectEyeUp.csproj /p:Configuration=Release /p:Platform="AnyCPU"  
-        
-    - name: Upload build artifacts  
-      uses: actions/upload-artifact@v4  
-      with:  
-        name: ProjectEye-Release  
-        path: |  
-          src/Local/ProjectEye/bin/Release/  
-          !src/Local/ProjectEye/bin/Release/*.pdb
+    steps:
+      - name: Install .net framework 4.5 SDK
+        shell: pwsh
+        run: |
+          echo "download ${env:net45SdkUrl}"
+          Invoke-WebRequest -Uri "${env:net45SdkUrl}" -OutFile "${env:temp}\net45sdk.zip"
+          echo "unzip net45sdk.zip"
+          Expand-Archive -Force -LiteralPath "${env:temp}\net45sdk.zip" -DestinationPath "${env:temp}\net45sdk"
+          echo "delete ${env:sdkSystemPath}\v4.5"
+          [IO.Directory]::Delete("${env:sdkSystemPath}\v4.5", $True)
+          echo "move SDK to ${env:sdkSystemPath}\v4.5"
+          Move-Item -Force -LiteralPath "${env:temp}\net45sdk\build\.NETFramework\v4.5" -Destination "${env:sdkSystemPath}"
+  
+      - name: Checkout code  
+        uses: actions/checkout@v4  
+          
+      - name: Setup MSBuild  
+        uses: microsoft/setup-msbuild@v1.3  
+          
+      - name: Setup NuGet  
+        uses: NuGet/setup-nuget@v1  
+              
+      - name: Restore NuGet packages  
+        run: nuget restore src/Local/ProjectEye/ProjectEye.Local.sln
+              
+      - name: Build ProjectEye  
+        run: msbuild src/Local/ProjectEye/ProjectEye.csproj /p:Configuration=Release /p:Platform="AnyCPU"  
+          
+      - name: Build Project1.UI  
+        run: msbuild src/Local/Project1.UI/Project1.UI.csproj /p:Configuration=Release /p:Platform="AnyCPU"  
+          
+      - name: Build ProjectEyeBug  
+        run: msbuild src/Local/ProjectEyeBug/ProjectEyeBug.csproj /p:Configuration=Release /p:Platform="AnyCPU"  
+          
+      - name: Build ProjectEyeUp  
+        run: msbuild src/Local/ProjectEyeUp/ProjectEyeUp.csproj /p:Configuration=Release /p:Platform="AnyCPU"  
+          
+      - name: Upload build artifacts  
+        uses: actions/upload-artifact@v4  
+        with:  
+          name: ProjectEye-Release  
+          path: |  
+            src/Local/ProjectEye/bin/Release/  
+            !src/Local/ProjectEye/bin/Release/*.pdb
