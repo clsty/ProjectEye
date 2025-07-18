@@ -1,0 +1,44 @@
+name: Build ProjectEye  
+  
+on:  
+  push:  
+    branches: [ master, main ]  
+  pull_request:  
+    branches: [ master, main ]  
+  
+jobs:  
+  build:  
+    runs-on: windows-latest  
+      
+    steps:  
+    - name: Checkout code  
+      uses: actions/checkout@v4  
+        
+    - name: Setup MSBuild  
+      uses: microsoft/setup-msbuild@v1.3  
+        
+    - name: Setup NuGet  
+      uses: NuGet/setup-nuget@v1  
+        
+    - name: Restore NuGet packages  
+      run: nuget restore src/Local/ProjectEye.sln  
+        
+    - name: Build ProjectEye  
+      run: msbuild src/Local/ProjectEye/ProjectEye.csproj /p:Configuration=Release /p:Platform="Any CPU"  
+        
+    - name: Build Project1.UI  
+      run: msbuild src/Local/Project1.UI/Project1.UI.csproj /p:Configuration=Release /p:Platform="Any CPU"  
+        
+    - name: Build ProjectEyeBug  
+      run: msbuild src/Local/ProjectEyeBug/ProjectEyeBug.csproj /p:Configuration=Release /p:Platform="Any CPU"  
+        
+    - name: Build ProjectEyeUp  
+      run: msbuild src/Local/ProjectEyeUp/ProjectEyeUp.csproj /p:Configuration=Release /p:Platform="Any CPU"  
+        
+    - name: Upload build artifacts  
+      uses: actions/upload-artifact@v4  
+      with:  
+        name: ProjectEye-Release  
+        path: |  
+          src/Local/ProjectEye/bin/Release/  
+          !src/Local/ProjectEye/bin/Release/*.pdb
