@@ -21,16 +21,16 @@ jobs:
       run: nuget restore src/Local/ProjectEye/ProjectEye.Local.sln
             
     - name: Build ProjectEye  
-      run: msbuild src/Local/ProjectEye/ProjectEye.csproj /p:Configuration=Release /p:Platform="Any CPU"  
+      run: msbuild src/Local/ProjectEye/ProjectEye.csproj /p:Configuration=Release /p:Platform="AnyCPU"  
         
     - name: Build Project1.UI  
-      run: msbuild src/Local/Project1.UI/Project1.UI.csproj /p:Configuration=Release /p:Platform="Any CPU"  
+      run: msbuild src/Local/Project1.UI/Project1.UI.csproj /p:Configuration=Release /p:Platform="AnyCPU"  
         
     - name: Build ProjectEyeBug  
-      run: msbuild src/Local/ProjectEyeBug/ProjectEyeBug.csproj /p:Configuration=Release /p:Platform="Any CPU"  
+      run: msbuild src/Local/ProjectEyeBug/ProjectEyeBug.csproj /p:Configuration=Release /p:Platform="AnyCPU"  
         
     - name: Build ProjectEyeUp  
-      run: msbuild src/Local/ProjectEyeUp/ProjectEyeUp.csproj /p:Configuration=Release /p:Platform="Any CPU"  
+      run: msbuild src/Local/ProjectEyeUp/ProjectEyeUp.csproj /p:Configuration=Release /p:Platform="AnyCPU"  
         
     - name: Upload build artifacts  
       uses: actions/upload-artifact@v4  
